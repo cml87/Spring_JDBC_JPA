@@ -1,5 +1,6 @@
 package com.example.jdbc;
 
+import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -16,13 +17,17 @@ public class AppConfig {
     public DataSource dataSource(){
 
         //SingleConnectionDataSource singleConnectionDataSource = new SingleConnectionDataSource();
-        DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
-        driverManagerDataSource.setDriverClassName("org.h2.Driver");
-        driverManagerDataSource.setUrl("jdbc:h2:mem:mydb");
-        driverManagerDataSource.setUsername("sa");
-        driverManagerDataSource.setPassword("");
+        //DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:mem:mydb");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("");
 
-        return driverManagerDataSource;
+        // fields from BasicDataSource
+        dataSource.setMaxActive(5);
+        dataSource.setMaxIdle(30000);
+
+        return dataSource;
     }
-
 }

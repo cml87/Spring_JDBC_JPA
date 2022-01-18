@@ -54,5 +54,44 @@ public class MyDao {
 
 Another type of data source is `SingleConnectionDataSource`. It is a subclass of `DriverManagerDataSource`. It will ensure that the same connection is returned when a connection is requested in a application, a singleton. Useful when we don't need more than one connection in our application, eg. a Swing desktop application accessing its db. 
 
-##
+## Connection pool
+Data sources can have a connection pool, so whenever a new connection is requested, one from the pool is returned. This save time, compared to instantiating one, which is a relatively costly operation. In production environments we find different types of data sources having this feature, for example:  
+- DBCP (DataBase Connection Pool) from Apache
+- C3PO, default with Hibernate
+- AS, bind to the JNDI registry: `JndiDataSourceLookup.getDataSource(string_jndi_ref, eg. jdbc/myDataSource)`
 
+It is possible to instantiate a one of this data sources in our Spring application. Let's use dbcp from Apache. Include the dependency in the pom:
+```xml
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>dbcp</artifactId>
+            <version>6.0.53</version>
+        </dependency>
+```
+The data source class to be instantiated is `org.apache.tomcat.dbcp.dbcp.BasicDataSource` which extends `javax.sql.DataSource`. It will have some additional fields to configure the data source, such as the max. active connections, and the idle time for a connection (time after which, if a connection is not used it is returned to the pool). See documentation at https://commons.apache.org/proper/commons-dbcp/:
+```java
+@Configuration
+@ComponentScan("com.example.jdbc")
+public class AppConfig {
+
+    @Bean
+    public DataSource dataSource(){
+
+        //SingleConnectionDataSource singleConnectionDataSource = new SingleConnectionDataSource();
+        //DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:mem:mydb");
+        dataSource.setUsername("sa");
+        dataSource.setPassword("");
+
+        // fields from BasicDataSource
+        dataSource.setMaxActive(5);
+        dataSource.setMaxIdle(30000);
+
+        return dataSource;
+    }
+}
+```
+
+36:30
