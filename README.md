@@ -51,6 +51,14 @@ public class MyDao {
     }
 }
 ```
+The example above uses an in memory H2 database with url `jdbc:h2:mem:mydb`. We can use a file based database instead with `jdbc:h2:file:~/Desktop/mydb`, so we can "see" the database in the file system. This way we can connect a sql client to the db and examine its state. Additional options can be passed as `jdbc:h2:file:~/Desktop/mydb;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE`.
+- AUTO_SERVER=TRUE: enables the H2 process to additionally access the server accepting incoming connections from a sql client that we attach.
+- DB_CLOSE_ON_EXIT=FALSE: keep the db file after the java application finish, so we can still connect to the db and examine it.  
+
+jdbc:h2://<server>:<9092>/<db-name>
+
+The database will be created when we get the connection. The connection will be created in turn in the exectute() method call explained below, from the jdbc template. 
+
 
 Another type of data source is `SingleConnectionDataSource`. It is a subclass of `DriverManagerDataSource`. It will ensure that the same connection is returned when a connection is requested in a application, a singleton. Useful when we don't need more than one connection in our application, eg. a Swing desktop application accessing its db. 
 
@@ -60,7 +68,7 @@ Data sources can have a connection pool, so whenever a new connection is request
 - C3PO, default with Hibernate
 - AS, bind to the JNDI registry: `JndiDataSourceLookup.getDataSource(string_jndi_ref, eg. jdbc/myDataSource)`
 
-It is possible to instantiate a one of this data sources in our Spring application. Let's use dbcp from Apache. Include the dependency in the pom:
+It is possible to instantiate one of this data sources in our Spring application. Let's use dbcp from Apache. Include the dependency in the pom:
 ```xml
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -68,7 +76,7 @@ It is possible to instantiate a one of this data sources in our Spring applicati
             <version>6.0.53</version>
         </dependency>
 ```
-The data source class to be instantiated is `org.apache.tomcat.dbcp.dbcp.BasicDataSource` which extends `javax.sql.DataSource`. It will have some additional fields to configure the data source, such as the max. active connections, and the idle time for a connection (time after which, if a connection is not used it is returned to the pool). See documentation at https://commons.apache.org/proper/commons-dbcp/:
+The data source class to be instantiated is `org.apache.tomcat.dbcp.dbcp.BasicDataSource`, which extends `javax.sql.DataSource`. It will add, respect to the javax data source, some additional fields to configure the data source, such as the max. active connections, and the idle time for a connection (time after which, if a connection is not used it is returned to the pool). See documentation at https://commons.apache.org/proper/commons-dbcp/:
 ```java
 @Configuration
 @ComponentScan("com.example.jdbc")
@@ -85,7 +93,7 @@ public class AppConfig {
         dataSource.setUsername("sa");
         dataSource.setPassword("");
 
-        // fields from BasicDataSource
+        // fields from Apache's BasicDataSource
         dataSource.setMaxActive(5);
         dataSource.setMaxIdle(30000);
 
@@ -94,4 +102,12 @@ public class AppConfig {
 }
 ```
 
-36:30
+## JDBC template 
+The JDBC template from Spring allows to easily launch queries against a database.
+
+
+If we go into the execute() method we'll see it does all the boilerplate code we normally have to do with pure jdbc. This included getting the connection from the data source, closing it once we have finished using it, handle exceptions.
+
+We'll connect to the db with the client Squirrel sql
+
+47.19
