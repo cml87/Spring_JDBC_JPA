@@ -25,10 +25,10 @@ public class MyDao {
 
     @PostConstruct
     public void doQuery(){
-        // do queries
+
         // to see if the db is up and running only, no schema or tables
         //jdbcTemplate.execute("select 1 from dual");
-        //jdbcTemplate.execute("insert into employee values (1,'Matt','R&D')"); //execute is used for ddl statements
+
         jdbcTemplate.update("insert into employee values (2,'Paul','HR')"); //update is used for update, insert or delete
 
         jdbcTemplate.query("select name, department from employee", new RowCallbackHandler() {

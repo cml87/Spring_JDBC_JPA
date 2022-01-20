@@ -1,6 +1,5 @@
 package com.example.jdbc;
 
-import jdk.nashorn.internal.scripts.JD;
 import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -20,7 +19,7 @@ public class AppConfig {
 
         SingleConnectionDataSource dataSource = new SingleConnectionDataSource();
         //DriverManagerDataSource dataSource = new DriverManagerDataSource();
-       //BasicDataSource dataSource = new BasicDataSource();
+        //BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
         //dataSource.setUrl("jdbc:h2:file:mydb");
         dataSource.setUrl("jdbc:h2:file:~/Desktop/mydb;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE");
