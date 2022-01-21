@@ -199,6 +199,27 @@ There are different methods a jdbc template supports to work with a db: `execute
 
 The `doQuery()` method above could load the data read from the db into an `Employee` pojo, and return it to a method from the service layer. Remember, we are in a method of the repository layer that access the db. These methods are normally called by method of the service layer.
 
+## Jdbc DAO support to remove boilerplate jdbc code
 
+The Dao class seen above explicitly defines as dependencies a Data source and a Jdbc Template classes, needed both to perform queries against a database. Spring provides an abstract class to be subclassed, such that a data source and the Jdbc template are inherited, and can be set afterwards, `JdbcDaoSupport`. It does more boilerplate actions we would normally do:
+```java
+@Repository
+public class MyDao_DaoSupport extends JdbcDaoSupport {
 
-47.19
+    @Autowired
+    public MyDao_DaoSupport(DataSource dataSource) {
+        setDataSource(dataSource);
+    }
+
+    @PostConstruct
+    public void doQuery(){
+       
+        String result = getJdbcTemplate().queryForObject("select 1 from dual", String.class);
+        System.out.println("result = " + result);
+    }
+}
+```
+
+ 
+
+The JDBCDaoSupport class

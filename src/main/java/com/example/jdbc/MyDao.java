@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Repository
-public class MyDao {
+public class  MyDao {
 
     private DataSource dataSource;
 
@@ -23,7 +23,7 @@ public class MyDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @PostConstruct
+    /*@PostConstruct
     public void doQuery(){
 
         // to see if the db is up and running only, no schema or tables
@@ -39,7 +39,7 @@ public class MyDao {
                 System.out.println(String.format("Name = [%s], Dept = [%s]",name, dept));
             }
         });
-    }
+    }*/
 
 
 }
