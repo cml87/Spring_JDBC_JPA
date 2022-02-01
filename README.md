@@ -5,16 +5,18 @@ In this project I will put my notes about Spring JDBC and JPA. It will include n
 # Spring JDBC
 
 ## Creating and configuring Data Sources
-Data sources are used to create connections, or to retrieve connections (from a connection pool), from an existing data source. In our code, they are represented by classes implementing interface `javax.sql.DataSource`, always.
+There are two <u>interfaces</u> which are central to JDBC: `javax.sql.DataSource` and `java.sql.Driver`.
+
+Data sources are used to create connections, or to retrieve connections (from a connection pool), from an existing data source. In our code, they are always represented by classes implementing interface `javax.sql.DataSource`.
 
 Before Spring, we used to get the connection with `java.sql.DriverManager.getConnection()` as:
 ```java
     Class.forName("org.h2.Driver");  // load the jdbc driver
     Connection conn = DriverManager.getConnection("jdbc:h2:˜/test", "sa", "sa");
 ```
-It returned a new connection to the db whenever we called it. But we don't use the DriverManager directly, we use the DataSource ? In Spring, there is an implementation of `javax.sql.DataSource` that includes the driver manager, `DriverManagerDataSource`, and works in the same way. It is not used in production, only in demo applications.
+This returned a new connection to the db whenever we called it. But we don't use the DriverManager directly anymore, we use the DataSource class `javax.sql.DataSource`. In Spring, there is an implementation of this class, `DriverManagerDataSource`, which includes the driver manager (the JDBC driver), and works in the same way. It is not used in production, only in demo applications.
 
-- `DriverManagerDataSource`: a class in Spring that defines a data source, together with the driver class needed for that specific jdbc vendor.
+- `DriverManagerDataSource`: a class in Spring that defines a data source, i.e. that implements interface `javax.sql.DataSource`. It "includes" a JDBC driver field, i.e. one implementing `java.sql.Driver`, which must be set with the JDBC driver class of the vendor of the SQL database we want to work with.
 
 In a `DriverManagerDataSource` we have to set the driver class name. Depending on the db we are connecting to, we'll have one or another JDBC driver installed. In the code, we must use the fully qualified class name of the JDBC driver in our path.  
 
@@ -36,7 +38,7 @@ public class AppConfig {
         //SingleConnectionDataSource singleConnectionDataSource = new SingleConnectionDataSource();
         DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
         
-        // the driver class
+        // the JDBC driver with a specific class
         driverManagerDataSource.setDriverClassName("org.h2.Driver");
         
         // the data source definition: vendor specific db url, username, password
@@ -67,6 +69,35 @@ The connection url format will be vendor specific in general. The example above 
 
 There are different types of H2 databases (in memory, file based, standalone ?? ), with different connection urls. See the wizard of DBeaver.
 jdbc:h2://<server>:<9092>/<db-name>
+
+This is how we would configure a data source with xml
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                            http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd">
+    <!--    reference to tht jdbc name space and schema definition file-->
+
+    <!-- embedded database -->
+    <jdbc:embedded-database id="dataSource"/>
+    <jdbc:initialize-database data-source="dataSource">
+        <jdbc:script location="classpath:db-schema.sql"/>
+    </jdbc:initialize-database>
+
+    <!-- data source bean definition -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+        <property name="url" value="jdbc:h2:~/flightsmanagement"/>
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
+    </bean>
+
+</beans>
+```
 
 ## Connection pool
 Some data source implementations have a connection pool as a feature, so whenever a new connection is requested, one from the pool is returned. This save time, compared to instantiating one, which is a relatively costly operation. In production environments we find different types of data sources having this feature, for example:  
