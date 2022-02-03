@@ -14,14 +14,13 @@ Before Spring, we used to get the connection with `java.sql.DriverManager.getCon
     Class.forName("org.h2.Driver");  // load the jdbc driver
     Connection conn = DriverManager.getConnection("jdbc:h2:˜/test", "sa", "sa");
 ```
-This returned a new connection to the db whenever we called it. But we don't use the DriverManager directly anymore, we use the DataSource class `javax.sql.DataSource`. In Spring, there is an implementation of this class, `DriverManagerDataSource`, which includes the driver manager (the JDBC driver), and works in the same way. It is not used in production, only in demo applications.
+This returned a new connection to the db whenever we called it. But we don't use the DriverManager directly anymore, we use the DataSource interface `javax.sql.DataSource`. In Spring, there is an implementation of this interface, `DriverManagerDataSource`, which includes the driver manager (the JDBC driver), and works in the same way. It is not used in production, only in demo applications.
 
 - `DriverManagerDataSource`: a class in Spring that defines a data source, i.e. that implements interface `javax.sql.DataSource`. It "includes" a JDBC driver field, i.e. one implementing `java.sql.Driver`, which must be set with the JDBC driver class of the vendor of the SQL database we want to work with.
 
-In a `DriverManagerDataSource` we have to set the driver class name. Depending on the db we are connecting to, we'll have one or another JDBC driver installed. In the code, we must use the fully qualified class name of the JDBC driver in our path.  
+In a `DriverManagerDataSource` we have to set the driver class name. Depending on the db we are connecting to, we'll have one or another JDBC driver installed. In other words, depending on the database dependency we have inserted in our pom, we'll have one or other .class file (of a class implementing `java.sql.Driver`) of that vendor, in our class path. In the code, we must use the fully qualified class name of the JDBC driver in our path.  
 
-The JDBC driver will be a class implementing interface `java.sql.Driver`.
-How to know if we have any JDBC driver in our class path? How to know the JDBC driver class?
+<u>The JDBC driver will be a class implementing interface `java.sql.Driver`</u>, as we have said. But, how to know if we have any JDBC driver in our class path at all? How to know the JDBC driver class?
 1. Intellij, ^+shift+A, classes, "Driver". select `java.sql.Driver`. The methods in this interface will be called by the driver manager enclosed in the data source. ^F12 for methods list.
 2. Look at the class hierarchy of this interface, ^H. We'll see the <u>classes in our classpath implementing this interface</u>! For example, `org.h2.Driver`, if we have included this dependency in the pom. That's what we need to use.
 
