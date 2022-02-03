@@ -112,7 +112,7 @@ Let's use as example `org.apache.tomcat.dbcp.dbcp.BasicDataSource` from Apache. 
             <version>6.0.53</version>
         </dependency>
 ```
-This data source implementation adds, respect to the javax `DataSource` interface, some additional configurations, such as the maximum active connections, and the idle time for a connection (time after which, if a connection is not used it is returned to the pool). See documentation at https://commons.apache.org/proper/commons-dbcp/:
+This data source implementation adds some additional configurations, compared to the `javax.sql.DataSource` interface. These include the maximum active connections, and the idle time for a connection (time after which, if a connection is not used it is returned to the pool). See the documentation at https://commons.apache.org/proper/commons-dbcp/:
 ```java
 import org.apache.tomcat.dbcp.dbcp.BasicDataSource;
 
